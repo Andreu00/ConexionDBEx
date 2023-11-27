@@ -142,7 +142,7 @@ public class ConexionDBEx {
             stmt.setString(4, compañia);
             stmt.setString(5, precio);
             
-            stmt.executeUpdate(QUERYREGISTRO);
+            stmt.executeUpdate();
             System.out.println("Videjuego añadido");
                          
             stmt.close();                
