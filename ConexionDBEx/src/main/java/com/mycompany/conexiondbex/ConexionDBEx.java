@@ -17,6 +17,7 @@ public class ConexionDBEx {
     static final String USER = "andreu";
     static final String PASS = "1234";
     static final String QUERY = "SELECT * FROM videojuegos where Nombre = ? ";
+    static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?";
     
     
     public static void main(String[] args) {
@@ -46,7 +47,6 @@ public class ConexionDBEx {
                     teclado.nextLine();
                     System.out.print("Introduce el nombre de juego: ");
                     nombreJuego=teclado.nextLine();
-                    //nombreJuego = "Valorant";
                     
                     boolean retorno=buscaNombre(nombreJuego);
                     if(retorno==true){
@@ -58,7 +58,7 @@ public class ConexionDBEx {
                 
                 case 2 -> lanzaConsulta();
                 
-                case 3 -> nuevoRegistroParametro("Assasins", "Saltos", "2023-02-16", "Ubisoft", "40");
+                case 3 -> nuevoRegistroParametro("Assasins2", "Saltos2", "2023-02-16", "Ubisoft", "50");
                 
                 case 4 -> nuevoRegistroTeclado();  
                 
@@ -106,11 +106,11 @@ public class ConexionDBEx {
     }
     
     public static void lanzaConsulta(){
-        try(
+        try
+        {  
             Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
             Statement stmt =conn.createStatement();
-            ResultSet rs =stmt.executeQuery(QUERY);)
-        {  
+            ResultSet rs =stmt.executeQuery(QUERY);
             
             while(rs.next()){
                 System.out.println("ID: "+rs.getInt("Id"));
@@ -130,13 +130,19 @@ public class ConexionDBEx {
     
     public static void nuevoRegistroParametro(String nombre, String genero, String fecha, String compañia, String precio){
         
-        try(
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt =conn.createStatement();
-            ResultSet rs =stmt.executeQuery(QUERY);)
+        try
         {  
-            String query="INSERT INTO `videojuegos` (`id`, `Nombre`, `Genero`, `FechaLanzamiento`, `Compañia`, `Precio`) VALUES (NULL, '"+nombre+"', '"+genero+"', '"+fecha+"', '"+compañia+"', '"+precio+"')";
-            stmt.executeUpdate(query);
+            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
+                  
+            
+            stmt.setString(1, nombre);
+            stmt.setString(2, genero);
+            stmt.setString(3, fecha);
+            stmt.setString(4, compañia);
+            stmt.setString(5, precio);
+            
+            stmt.executeUpdate(QUERYREGISTRO);
             System.out.println("Videjuego añadido");
                          
             stmt.close();                
