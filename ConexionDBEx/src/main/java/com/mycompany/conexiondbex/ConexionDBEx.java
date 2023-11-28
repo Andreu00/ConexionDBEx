@@ -17,7 +17,8 @@ public class ConexionDBEx {
     static final String USER = "andreu";
     static final String PASS = "1234";
     static final String QUERY = "SELECT * FROM videojuegos where Nombre = ? ";
-    static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?";
+    static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?)";
+    static final String QUERYDELETE = "DELETE FROM videojuegos WHERE Nombre = ? ";
     
     
     public static void main(String[] args) {
@@ -63,7 +64,7 @@ public class ConexionDBEx {
                 case 4 -> nuevoRegistroTeclado();  
                 
                 case 5 -> {
-                    boolean eliminado=eliminarRegistro("Assasins");
+                    boolean eliminado=eliminarRegistro("Assasins2");
                     if(eliminado==true){
                         System.out.println("El juego se ha eliminado correctamente");
                     }else{
@@ -155,35 +156,34 @@ public class ConexionDBEx {
     public static void nuevoRegistroTeclado(){
         String nombre="", genero="",fecha="", compañia="", precio="";
         Scanner teclado=new Scanner(System.in);
-        try(
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt =conn.createStatement();
-            ResultSet rs =stmt.executeQuery(QUERY);)
+        try
         {  
+            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
             System.out.println("Introduce los datos que te voy a pedir a continuacion:");
             
             System.out.print("Nombre: ");
             nombre=teclado.nextLine();
-            System.out.println("\n");
             
             System.out.print("Genero: ");
             genero=teclado.nextLine();
-            System.out.println("\n");
             
             System.out.print("Fecha de Lanzamiento(YYYY-MM-DD): ");
             fecha=teclado.nextLine();
-            System.out.println("\n");
             
             System.out.print("Compañia: ");
             compañia=teclado.nextLine();
-            System.out.println("\n");
             
             System.out.print("Precio: ");
             precio=teclado.nextLine();
-            System.out.println("\n");
             
-            String query="INSERT INTO `videojuegos` (`id`, `Nombre`, `Genero`, `FechaLanzamiento`, `Compañia`, `Precio`) VALUES (NULL, '"+nombre+"', '"+genero+"', '"+fecha+"', '"+compañia+"', '"+precio+"')";
-            stmt.executeUpdate(query);
+            stmt.setString(1, nombre);
+            stmt.setString(2, genero);
+            stmt.setString(3, fecha);
+            stmt.setString(4, compañia);
+            stmt.setString(5, precio);
+            
+            stmt.executeUpdate();
             System.out.println("Videjuego añadido");
                          
             stmt.close();                
@@ -196,15 +196,17 @@ public class ConexionDBEx {
     public static boolean eliminarRegistro(String nombreV){
         
         boolean eliminado=false;
-        try(
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt =conn.createStatement();
-            ResultSet rs =stmt.executeQuery(QUERY);)
+        try
         {
-                String query="DELETE FROM `videojuegos` WHERE `nombre` = '"+nombreV+"'";
-                stmt.executeUpdate(query);
+            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            PreparedStatement stmt =conn.prepareStatement(QUERYDELETE);
+            stmt.setString(1, nombreV);
+            //ResultSet rs =stmt.executeQuery(QUERY);
+            
                 
-                while(rs.next()){
+                int filas=stmt.executeUpdate();
+                
+                /*while(rs.next()){
                     String nombre=rs.getString("Nombre");
                     if(!nombre.equals(nombreV)){
                         eliminado=true;
@@ -212,7 +214,14 @@ public class ConexionDBEx {
                     }else{
                         eliminado=false;
                     }
+                }*/
+                
+                if(filas>0){
+                    eliminado=true;
+                }else{
+                    eliminado=false;
                 }
+                
             stmt.close();                
         }catch(SQLException e){
             e.printStackTrace();
