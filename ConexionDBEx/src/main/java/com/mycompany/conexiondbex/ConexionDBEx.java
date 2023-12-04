@@ -6,6 +6,8 @@ package com.mycompany.conexiondbex;
 
 import java.sql.*;
 import java.util.Scanner;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
+import oracle.ucp.jdbc.PoolDataSource;
 
 /**
  *
@@ -19,6 +21,7 @@ public class ConexionDBEx {
     static final String QUERY = "SELECT * FROM videojuegos where Nombre = ? ";
     static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?)";
     static final String QUERYDELETE = "DELETE FROM videojuegos WHERE Nombre = ? ";
+    static PoolDataSource  pds;
     
     
     public static void main(String[] args) {
@@ -30,8 +33,14 @@ public class ConexionDBEx {
         int seleccion=0;
         
         try
-        {
+        {   
+            pds = PoolDataSourceFactory.getPoolDataSource();
+            pds.setConnectionFactoryClassName("com.mysql.cj.jdbc.Driver");
+            pds.setURL("jdbc:mysql://localhost:3306/jcvd");
+            pds.setUser("andreu");
+            pds.setPassword("1234"); 
             
+            pds.setInitialPoolSize(5);//Propiedades del pool
             
             System.out.println("Que quieres realizar en la Base de Datos?");
             System.out.println("1. Buscar Nombre");
@@ -85,7 +94,7 @@ public class ConexionDBEx {
         
         try
         {
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            Connection conn=pds.getConnection();
             PreparedStatement stmt =conn.prepareStatement(QUERY);            
             stmt.setString(1, nombreV);
             ResultSet rs =stmt.executeQuery();
@@ -109,7 +118,7 @@ public class ConexionDBEx {
     public static void lanzaConsulta(){
         try
         {  
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            Connection conn=pds.getConnection();
             Statement stmt =conn.createStatement();
             ResultSet rs =stmt.executeQuery(QUERY);
             
@@ -133,7 +142,7 @@ public class ConexionDBEx {
         
         try
         {  
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            Connection conn=pds.getConnection();
             PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
                   
             
@@ -158,7 +167,7 @@ public class ConexionDBEx {
         Scanner teclado=new Scanner(System.in);
         try
         {  
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            Connection conn=pds.getConnection();
             PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
             System.out.println("Introduce los datos que te voy a pedir a continuacion:");
             
@@ -198,7 +207,7 @@ public class ConexionDBEx {
         boolean eliminado=false;
         try
         {
-            Connection conn=DriverManager.getConnection(DB_URL, USER, PASS);
+            Connection conn=pds.getConnection();
             PreparedStatement stmt =conn.prepareStatement(QUERYDELETE);
             stmt.setString(1, nombreV);
             //ResultSet rs =stmt.executeQuery(QUERY);
