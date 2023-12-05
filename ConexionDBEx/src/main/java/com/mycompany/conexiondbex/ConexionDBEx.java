@@ -15,13 +15,14 @@ import oracle.ucp.jdbc.PoolDataSource;
  */
 public class ConexionDBEx {
 
-    static final String DB_URL = "jdbc:mysql://localhost:3306/jcvd";
-    static final String USER = "andreu";
-    static final String PASS = "1234";
-    static final String QUERY = "SELECT * FROM videojuegos where Nombre = ? ";
-    static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?)";
-    static final String QUERYDELETE = "DELETE FROM videojuegos WHERE Nombre = ? ";
-    static PoolDataSource  pds;
+    static final String DB_URL = "jdbc:mysql://localhost:3306/jcvd";//URL para acceder a la base de datos
+    static final String USER = "andreu";//Usuario de la base de datos con la que acceder
+    static final String PASS = "1234";//Contraseña del usuario de la base de datos
+    static final String QUERY = "SELECT * FROM videojuegos where Nombre = ? ";//Consulta para mostrar datos de un videojuego a través del nombre que le pasemos
+    //En el parentesis de la consulta consta de null en caso de tener id y las interrogaciones que hacen referencia a cada uno de los parametros que hay que insertar para completar un libro
+    static final String QUERYREGISTRO = "insert into videojuegos values (null, ?, ?, ?, ?, ?)";//Consulta para insertar un videojuego nuevo con sus valores
+    static final String QUERYDELETE = "DELETE FROM videojuegos WHERE Nombre = ? ";//Eliminar libro de la Base de Datos a traves del titulo que indiquemos
+    static PoolDataSource  pds;//Crear pool de conexiones para gestionar las conexiones en la Base de Datos
     
     
     public static void main(String[] args) {
@@ -34,14 +35,15 @@ public class ConexionDBEx {
         
         try
         {   
-            pds = PoolDataSourceFactory.getPoolDataSource();
-            pds.setConnectionFactoryClassName("com.mysql.cj.jdbc.Driver");
-            pds.setURL("jdbc:mysql://localhost:3306/jcvd");
-            pds.setUser("andreu");
-            pds.setPassword("1234"); 
+            pds = PoolDataSourceFactory.getPoolDataSource();//Instancia apra gestionar la base de datos 
+            pds.setConnectionFactoryClassName("com.mysql.cj.jdbc.Driver");//Asiganr el nombre de la clase para controlarla
+            pds.setURL(DB_URL);//Establecemos la URL de la conexion
+            pds.setUser(USER);//Establecemos el usuario
+            pds.setPassword(PASS);//Establecemos la contraseña
             
-            pds.setInitialPoolSize(5);//Propiedades del pool
+            pds.setInitialPoolSize(5);//Establece el tamaño del pool
             
+            //Creamos un menú para indicar que quiere realizar el usuario
             System.out.println("Que quieres realizar en la Base de Datos?");
             System.out.println("1. Buscar Nombre");
             System.out.println("2. Lanzar Consulta");
@@ -52,6 +54,8 @@ public class ConexionDBEx {
             seleccion=teclado.nextInt();
             System.out.println("");
             
+            //Switch para saber que realizar dependiendo de la opción que elija el usuario
+            //llamando cada opcion a su metodo indicado
             switch(seleccion){
                 case 1 -> {
                     teclado.nextLine();
@@ -87,27 +91,29 @@ public class ConexionDBEx {
         }
     }
     
+    //Metodo para buscar un videojuego por su nombre pasandole el nombre como parametro
     public static boolean buscaNombre(String nombreV){
         
         String nombre;
-        boolean encuentra=false;
+        boolean encuentra=false;//Valor que devolveremos en caso de encontrar o no el videojuego
         
         try
         {
-            Connection conn=pds.getConnection();
-            PreparedStatement stmt =conn.prepareStatement(QUERY);            
-            stmt.setString(1, nombreV);
-            ResultSet rs =stmt.executeQuery();
-            while(rs.next()){
-                nombre=rs.getString("Nombre");  
-                if(nombre.equals(nombreV)){
-                    encuentra=true;
+            Connection conn=pds.getConnection();//Realizamos la conexion a la bdd
+            PreparedStatement stmt =conn.prepareStatement(QUERY);//Preparamos la sentencia para pasarsela a la bdd con la consulta que deseemos          
+            stmt.setString(1, nombreV);//Asignamos el valor de la consulta, pasandole 1 como parametro que deseamos introducir dependiendo de las interrogaciones que tengamos y el valor que queremos asignar
+            ResultSet rs =stmt.executeQuery();//Ejecuta la consulta y almacena el resultado
+            
+            while(rs.next()){//Recorremos la base de datos mostrando los nombres que almacenamos en el rs
+                nombre=rs.getString("Nombre");  //almacenamos el nombre del titulo del cual sea del campo Nombre
+                if(nombre.equals(nombreV)){//Comparamos el nombre introducido con el recorrido en la bdd para comprobar si está o no
+                    encuentra=true;//Si lo encuentra será true y saldremos del bucle para finalizarlo
                     break;
                 }else{
-                    encuentra=false;
+                    encuentra=false;//Si no lo encuentra será false y terminara el bucle 
                 }
             }            
-            stmt.close();                
+            stmt.close();//cerramos la sentencia                
         }catch(SQLException e){
             e.printStackTrace();
         }       
@@ -122,6 +128,7 @@ public class ConexionDBEx {
             Statement stmt =conn.createStatement();
             ResultSet rs =stmt.executeQuery(QUERY);
             
+            //Meotodo para coger los datos del videojuego a través de su campo y mostrarlo
             while(rs.next()){
                 System.out.println("ID: "+rs.getInt("Id"));
                 System.out.println("Nombre: "+rs.getString("Nombre"));
@@ -139,20 +146,20 @@ public class ConexionDBEx {
     }
     
     public static void nuevoRegistroParametro(String nombre, String genero, String fecha, String compañia, String precio){
-        
+        //Metodo para añadir un nuevo videojuego a traves de los valores que se le pasan al llamar al metodo
         try
         {  
             Connection conn=pds.getConnection();
             PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
                   
-            
+            //Asignamos a cada interrogacion el valor que queremos adjudicarle
             stmt.setString(1, nombre);
             stmt.setString(2, genero);
             stmt.setString(3, fecha);
             stmt.setString(4, compañia);
             stmt.setString(5, precio);
             
-            stmt.executeUpdate();
+            stmt.executeUpdate();//Ejecutamos para actualizar la lista
             System.out.println("Videjuego añadido");
                          
             stmt.close();                
@@ -163,6 +170,7 @@ public class ConexionDBEx {
     }
     
     public static void nuevoRegistroTeclado(){
+        //Metodo para añadir un nuevo videojuego a través de los datos que introduzca el usuario por teclado
         String nombre="", genero="",fecha="", compañia="", precio="";
         Scanner teclado=new Scanner(System.in);
         try
@@ -171,6 +179,8 @@ public class ConexionDBEx {
             PreparedStatement stmt =conn.prepareStatement(QUERYREGISTRO);
             System.out.println("Introduce los datos que te voy a pedir a continuacion:");
             
+            //Recogemos y almacenamos los datos introducidos en cada variable de los datos del videojuego
+            //a través del teclado
             System.out.print("Nombre: ");
             nombre=teclado.nextLine();
             
@@ -186,6 +196,7 @@ public class ConexionDBEx {
             System.out.print("Precio: ");
             precio=teclado.nextLine();
             
+            //Asignamos cada interrogacion con su debido parametro
             stmt.setString(1, nombre);
             stmt.setString(2, genero);
             stmt.setString(3, fecha);
@@ -212,9 +223,8 @@ public class ConexionDBEx {
             stmt.setString(1, nombreV);
             //ResultSet rs =stmt.executeQuery(QUERY);
             
-                
-                int filas=stmt.executeUpdate();
-                
+                                                
+                //Bucle para el Statement normal
                 /*while(rs.next()){
                     String nombre=rs.getString("Nombre");
                     if(!nombre.equals(nombreV)){
@@ -225,6 +235,10 @@ public class ConexionDBEx {
                     }
                 }*/
                 
+                //Metodo para saber si se ha eliminado el libro con el PreparedStatement
+                int filas=stmt.executeUpdate();
+                
+                //Comprobacion si ha habido algun movimiendo de lineas en la bdd
                 if(filas>0){
                     eliminado=true;
                 }else{
