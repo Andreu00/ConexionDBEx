@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-11-2023 a las 18:12:56
+-- Tiempo de generación: 05-12-2023 a las 16:12:34
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -49,7 +49,8 @@ INSERT INTO `videojuegos` (`Id`, `Nombre`, `Genero`, `FechaLanzamiento`, `Compa�
 (6, 'Call Of Duty Black Ops 2', 'Guerra', '2023-11-11', 'Activision', 70.00),
 (7, 'Tetris', 'Piezas', '2020-11-21', 'Nintendo', 100.00),
 (17, 'RaduGeta', 'Robos', '2023-11-04', 'RaduManitas', 100.00),
-(18, 'Valheim', 'Survival', '2023-04-23', 'Steam', 12.00);
+(18, 'Valheim', 'Survival', '2023-04-23', 'Steam', 12.00),
+(19, 'emanuel', 'boliviano', '2023-10-23', 'telefonica', 40.00);
 
 --
 -- Índices para tablas volcadas
@@ -69,7 +70,7 @@ ALTER TABLE `videojuegos`
 -- AUTO_INCREMENT de la tabla `videojuegos`
 --
 ALTER TABLE `videojuegos`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
